@@ -1,25 +1,30 @@
-import React, { Component } from 'react';
-import { w3cwebsocket as W3CWebSocket } from "websocket";
+import React, { useState } from 'react';
+import { useHistory } from "react-router-dom";
 
-const client = new W3CWebSocket('ws://127.0.0.1:8000/ws/game/test');
 
-class App extends Component {
-  componentDidMount() {
-    client.onopen = () => {
-      console.log('WebSocket Client Connected');
-    };
-    client.onmessage = (message) => {
-      console.log(message);
-    };
-  }
-  
-  render() {
+function App() {    
+    const [room, setRoom] = useState('')
+    let history = useHistory()
+    const enterGame = () =>{
+      console.log(room)
+      var url = "/"+room
+      history.push(url)
+    }
     return (
-      <div>
-        Practical Intro To WebSockets.
+      <div className = "MyApp">
+        <h1> Tic-Tac-Toe </h1>
+        <br></br>
+        <br></br>
+        <label htmlFor = "title" className = "form-label">Room Name</label>
+        <input type = "text" className = "form-control" id = "roomName" placeholder = "add room name here"
+          value = {room} onChange = {e => setRoom(e.target.value)
+        }
+        />
+        <button className = "btn btn-success mt-3"
+        onClick = {enterGame}>Join</button>    
+        
       </div>
     );
   }
-}
 
 export default App;
