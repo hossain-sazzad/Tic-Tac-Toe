@@ -11,12 +11,15 @@ class GameRoom(WebsocketConsumer):
         self.turn = 0
         self.room_name = self.scope['url_route']['kwargs']['room_code']
         self.room_group_name = "room_%s" % self.room_name
-        print(self.room_group_name)
-        if(self.present.__contains__(self.room_group_name)):
+        print("room-name "+self.room_group_name)
+        print(self.present)
+        if(self.room_group_name in self.present):
             playerNo = 2
+            print("player 2 selected")
         else:
             playerNo = 1
             self.present.add(self.room_group_name)
+            print("player 1 selected")
 
         async_to_sync(self.channel_layer.group_add)(
             self.room_group_name,
@@ -37,13 +40,60 @@ class GameRoom(WebsocketConsumer):
         )
         self.present.remove(self.room_group_name)
 
+    def checkWin(self,board):
+        # rows matched
+        if board[0] == board[1] == board[2]:
+            if board[0] is not None: return True
+        if board[3] == board[4] == board[5]:
+            if board[3] is not None: return True
+        if board[6] == board[7] == board[8]:
+            if board[6] is not None: return True
+
+        # colums matched
+        if board[0] == board[3] == board[6]:
+            if board[0] is not None: return True
+        if board[1] == board[4] == board[7]:
+            if board[1] is not None: return True
+        if board[2] == board[5] == board[8]:
+            if board[2] is not None: return True
+
+        # corners matched
+        if board[0] == board[4] == board[8]:
+            if board[0] is not None: return True
+        if board[2] == board[4] == board[6]:
+            if board[2] is not None: return True
+
+        return False
+
+    def isGameOver(self, board):
+        for i in range(9):
+            if board[i] is None:
+                return False
+        return True
+
+    def updateGame(self,board, index, playerNo):
+        if playerNo == 1:
+            board[index] = 'X'
+        else:
+            board[index] = 'O'
+        
+        return board
+
     def receive(self, text_data):
         data = json.loads(text_data)
+        board = data['board']
+        print("board "+ str(type(board)))
+        board = self.updateGame(board, data['index'], data['playerNo'])
+        win = self.checkWin(board)
+        end = True if win else self.isGameOver(board)
         async_to_sync(self.channel_layer.group_send)(
             self.room_group_name,{
                 'type': 'updateState',
                 'index': data['index'],
-                'playerNo': data['playerNo']
+                'playerNo': data['playerNo'],
+                'board': board,
+                'win': win,
+                'end': end
             }
         )
 
@@ -65,3 +115,9 @@ class GameRoom(WebsocketConsumer):
         self.send(text_data= json.dumps({
             'payload': data
         }))
+
+
+
+        
+
+        

@@ -5,16 +5,21 @@
 import React, { Component } from 'react';
 import { Redirect } from 'react-router-dom';
 import { w3cwebsocket } from 'websocket';
+import ScoreBoard from '../functional/ScoreBoard';
 import Square from '../functional/Square';
+import Status from '../functional/Status';
 
 var baseUrl = 'ws://127.0.0.1:8000/ws/game/'
-var client = null;
+var client;
+var url;
 class Board extends Component {
   constructor(props){
     super(props)
+    console.log("in constructor")
     console.log("Board "+ props.room)
-    var url = baseUrl + props.room
-    client = new w3cwebsocket(url);
+
+    url = baseUrl + props.room
+    // client = new w3cwebsocket(url);
     this.state = {
       game: new Array(9).fill(null),
       piece: '',
@@ -34,6 +39,7 @@ class Board extends Component {
   }
   componentDidMount() {
     console.log("mounted")
+    client = new w3cwebsocket(url);
     const _self = this;
     client.onopen = () => {
       console.log('WebSocket Client Connected');
@@ -54,19 +60,38 @@ class Board extends Component {
               _self.setState({"piece": "X"})
               console.log(_self.state.piece)
               _self.setState({"turn": true})
+              _self.setState({"statusMessage": "Your turn"})
             } else {
               _self.setState({"piece": "O"})
               _self.setState({"turn": false})
               console.log(_self.state.piece)
+              _self.setState({"statusMessage": "Opponent's turn"})
             }
         }
       } else {
-          var index = jsonObject['payload']['index'];
-          var playerNo = jsonObject['payload']['playerNo'];
+          var index = jsonObject['payload']['index']
+          var board = jsonObject['payload']['board']
+          playerNo = jsonObject['payload']['playerNo']
+          var win = jsonObject['payload']['win']
+          var end = jsonObject['payload']['end']
           console.log(index)
           console.log("received "+ index)
           console.log(_self.state.piece)
-          _self.handleUpdate(index, playerNo)
+          console.log(board)
+          _self.handleUpdate(playerNo, board)
+
+          if(win){
+            _self.handleWin(playerNo)
+          } else if (end){
+            _self.setState({"statusMessage": "Game Over"})
+          } else {
+            var thisPlayer =  _self.state.piece === 'X'?1 :2;
+            if(playerNo !== thisPlayer){
+              _self.setState({"statusMessage": "Your turn"})
+            } else {
+              _self.setState({"statusMessage": "Opponent's turn"})
+            }
+          }
       }
    }
     
@@ -114,16 +139,16 @@ class Board extends Component {
     if(this.state.turn){
       const {game, piece, end, turn} = this.state
       if (!game[index] && !end){
-        client.send(JSON.stringify({"index": index, "playerNo": this.state.piece==='X'? 1: 2}))
+        client.send(JSON.stringify({"index": index, 
+        "playerNo": this.state.piece==='X'? 1: 2,
+        "board": game}))
       }
       this.setState({"turn": false})
     }
   }
 
   //Setting the states each move when the game haven't ended (no wins or draw)
-  handleUpdate(index, playerNo){
-    let updatedGame = this.state.game
-    updatedGame[index] = playerNo ===1? 'X':'O'
+  handleUpdate(playerNo, updatedGame){
     var thisPlayer = this.state.piece === 'X'?1 :2;
     if(playerNo !== thisPlayer){
       this.setState({"turn": true})
@@ -132,16 +157,13 @@ class Board extends Component {
   }
 
   //Setting the states when some one wins
-  handleWin(id, gameState) {
-    this.setBoard(gameState)
-    if (this.socketID === id){
-      const playerScore = this.state.currentPlayerScore + 1
-      this.setState({currentPlayerScore:playerScore, statusMessage:'You Win'})
-    }else{
-      const opponentScore = this.state.opponentPlayer[1] + 1
-      const opponent = this.state.opponentPlayer
-      opponent[1] = opponentScore
-      this.setState({opponentPlayer:opponent, statusMessage:`${this.state.opponentPlayer[0]} Wins`})
+  handleWin(playerNo) {
+    this.setState({"turn": false})
+    var thisPlayer = this.state.piece === 'X'?1 :2;
+    if(playerNo !== thisPlayer){
+      this.setState({"statusMessage": "Sorry, You lost"})
+    } else {
+      this.setState({"statusMessage": "Congrats!, You won"})
     }
     this.setState({end:true})
   }
@@ -207,9 +229,14 @@ class Board extends Component {
       }
       return(
         <>
-          <div className="board MyApp">
+        <div className = "MyApp">
+        <Status message={this.state.statusMessage}/>
+          <div className="board">
             {squareArray}
           </div>
+          <ScoreBoard data={{you:['You', 10], opponent:['Opponent', 10]}}/>
+          {/* <PlayAgain end={this.state.end} onClick={this.playAgainRequest}/> */}
+        </div>
         </>
       )
     }

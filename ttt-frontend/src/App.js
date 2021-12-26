@@ -21,8 +21,7 @@ function App() {
         }
         />
         <button className = "btn btn-success mt-3"
-        onClick = {enterGame}>Join</button>    
-        
+        onClick = {enterGame}>Join</button>            
       </div>
     );
   }
