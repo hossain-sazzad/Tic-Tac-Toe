@@ -1,20 +1,28 @@
+import { encode as base64_encode } from 'base-64';
+import { Buffer } from 'buffer';
 import React, { useState } from 'react';
 import { useHistory } from "react-router-dom";
-
 
 function App() {    
     const [room, setRoom] = useState('')
     const [link, setLink] = useState(null)
 
     let history = useHistory()
+
+    function getHash(str){
+      let encoded = base64_encode(Buffer.from(str))
+      console.log("hash "+ encoded)
+      return encoded
+    }
     const enterGame = () =>{
-      console.log(room)
-      var url = "/"+room
+      console.log("hash "+ getHash(room))
+      var url = "/"+getHash(room)
       history.push(url)
     }
+    
 
     const generateLink = () =>{
-      setLink("http://localhost:3000/"+room)
+      setLink("http://localhost:3000/"+getHash(room))
     }
     return (
       <div className = "MyApp">
@@ -22,7 +30,7 @@ function App() {
         <br></br>
         <br></br>
         <label htmlFor = "title" className = "form-label">Room Name</label>
-        <input type = "text" className = "form-control" id = "roomName" placeholder = "add room name here"
+        <input type = "text" className = "form-control input-lg" id = "roomName" placeholder = "add room name here"
           value = {room} onChange = {e => setRoom(e.target.value)
         }
         />
@@ -33,7 +41,7 @@ function App() {
         {
           link === null? null : (
             <div >
-              <a href={link} class="link-primary">{link}</a>
+              <a href={link} className="link-primary">{link}</a>
             </div>
           )
         }   

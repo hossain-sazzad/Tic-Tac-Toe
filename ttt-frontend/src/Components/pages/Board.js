@@ -40,12 +40,20 @@ class Board extends Component {
   }
   componentDidMount() {
     console.log("mounted " + url)
-    client = new w3cwebsocket("ws://127.0.0.1:8000/ws/game/room3");
+    client = new w3cwebsocket(url);
     const _self = this;
     client.onopen = () => {
       console.log('WebSocket Client Connected');
       console.log(this.state.piece)
     };
+    client.onerror = function(event){
+      console.log("got error")
+      _self.setState({"statusMessage": "Room is closed"})
+    }
+    client.onclose = function(event) {
+      console.log("closing connection")
+      _self.setState({"statusMessage": "Room is closed"})
+    }
     client.onmessage = function(event) {
       var jsonObject = JSON.parse(event.data);
       console.log(event.data)
@@ -58,7 +66,7 @@ class Board extends Component {
             if(playerNo === 0){
               _self.setState({"piece": ""})
               console.log("room filled")
-              _self.setState({"statusMessage": "Soory, There is already 2 players in this room. Try another room"})
+              _self.setState({"statusMessage": "Soory, There are already 2 players in this room. Try another room"})
             }
             else if(playerNo === 1){
               _self.setState({"piece": "X"})
@@ -72,38 +80,38 @@ class Board extends Component {
               _self.setState({"statusMessage": "Opponent's turn"})
             }
         }
+      } else if (type === 'discard'){
+        _self.setState({"statusMessage": "opponent player left", "end": true, "piece": ''})
+      } else if (type === 'restart'){
+        _self.gameReStart()
       } else {
-          if ('event' in jsonObject['payload']){
-            _self.gameReStart()
+        var index = jsonObject['payload']['index']
+        var board = jsonObject['payload']['board']
+        playerNo = jsonObject['payload']['playerNo']
+        var win = jsonObject['payload']['win']
+        var end = jsonObject['payload']['end']
+        var score1 = jsonObject['payload']['score1']
+        var score2 = jsonObject['payload']['score2']
+
+        console.log(index)
+        console.log("received "+ index)
+        console.log(_self.state.piece)
+        console.log(board)
+        _self.handleUpdate(playerNo, board)
+
+        if(win){
+          _self.handleWin(playerNo, score1, score2)
+        } else if (end){
+          _self.setState({"statusMessage": "Game Over"})
+          _self.setState({end:true})
+        } else {
+          var thisPlayer =  _self.state.piece === 'X'?1 :2;
+          if(playerNo !== thisPlayer){
+            _self.setState({"statusMessage": "Your turn"})
           } else {
-            var index = jsonObject['payload']['index']
-            var board = jsonObject['payload']['board']
-            playerNo = jsonObject['payload']['playerNo']
-            var win = jsonObject['payload']['win']
-            var end = jsonObject['payload']['end']
-            var score1 = jsonObject['payload']['score1']
-            var score2 = jsonObject['payload']['score2']
-  
-            console.log(index)
-            console.log("received "+ index)
-            console.log(_self.state.piece)
-            console.log(board)
-            _self.handleUpdate(playerNo, board)
-  
-            if(win){
-              _self.handleWin(playerNo, score1, score2)
-            } else if (end){
-              _self.setState({"statusMessage": "Game Over"})
-              _self.setState({end:true})
-            } else {
-              var thisPlayer =  _self.state.piece === 'X'?1 :2;
-              if(playerNo !== thisPlayer){
-                _self.setState({"statusMessage": "Your turn"})
-              } else {
-                _self.setState({"statusMessage": "Opponent's turn"})
-              }
-            }
+            _self.setState({"statusMessage": "Opponent's turn"})
           }
+        }
       }
    }    
   }

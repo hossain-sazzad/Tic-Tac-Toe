@@ -1,3 +1,4 @@
+import base64
 import json
 
 import channels
@@ -9,9 +10,10 @@ class GameRoom(WebsocketConsumer):
     present = dict()
     def connect(self):
         self.turn = 0
-        self.room_name = self.scope['url_route']['kwargs']['room_code']
+        encoding = 'utf-8'
+        self.room_name = str(base64.b64decode(self.scope['url_route']['kwargs']['room_code']), encoding=encoding)
+        print("new room-name "+self.room_name)
         self.room_group_name = "room_%s" % self.room_name
-        print("room-name "+self.room_group_name)
         print(self.present)
         if(self.room_group_name in self.present):
             # print("size "+ len(self.present[self.room_group_name]))
@@ -40,13 +42,20 @@ class GameRoom(WebsocketConsumer):
             }
         )
 
-    def disconnect(self):
+    def disconnect(self, event):
+        async_to_sync(self.channel_layer.group_send)(
+            self.room_group_name,{
+                'type': 'discard',
+            }
+        )
         async_to_sync(self.channel_layer.group_discard)(
             self.room_group_name,
             self.channel_name  
         )
-        self.present.remove(self.room_group_name)
+        self.present.pop(self.room_group_name)
+        print("closing " + self.room_name)
 
+    
     def checkWin(self,board):
         # rows matched
         if board[0] == board[1] == board[2]:
@@ -94,7 +103,6 @@ class GameRoom(WebsocketConsumer):
             async_to_sync(self.channel_layer.group_send)(
                 self.room_group_name,{
                     "type": "restart",
-                    'event': "reload"
                 }
             )
             return
@@ -137,6 +145,13 @@ class GameRoom(WebsocketConsumer):
     def initiate(self, data):
         print("at initiate")
         print(data)
+        # data = json.loads(data)
+        # print(data['index'])
+        self.send(text_data= json.dumps({
+            'payload': data
+        }))
+
+    def discard(self, data):
         # data = json.loads(data)
         # print(data['index'])
         self.send(text_data= json.dumps({
