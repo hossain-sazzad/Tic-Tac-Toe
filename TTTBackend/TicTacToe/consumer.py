@@ -52,7 +52,7 @@ class GameRoom(WebsocketConsumer):
             self.room_group_name,
             self.channel_name  
         )
-        self.present.pop(self.room_group_name)
+        self.present.pop(self.room_group_name, 'none')
         print("closing " + self.room_name)
 
     

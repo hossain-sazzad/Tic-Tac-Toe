@@ -139,7 +139,7 @@ class Board extends Component {
   //When some one make a move, emit the event to the back end for handling
   handleClick = (index) => {
     if(this.state.turn){
-      const {game, piece, end, turn} = this.state
+      const {game, end} = this.state
       if (!game[index] && !end){
         client.send(JSON.stringify({"index": index, 
         "playerNo": this.state.piece==='X'? 1: 2,
@@ -235,7 +235,7 @@ class Board extends Component {
       }
       return(
         <>
-        <div className = "MyApp">
+        <div>
         <Status message={this.state.statusMessage}/>
          {this.state.piece === ''? null : (
             <div>

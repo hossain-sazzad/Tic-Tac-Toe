@@ -30,7 +30,7 @@ function App() {
         <br></br>
         <br></br>
         <label htmlFor = "title" className = "form-label">Room Name</label>
-        <input type = "text" className = "form-control input-lg" id = "roomName" placeholder = "add room name here"
+        <input type = "text" className = "form-control form-control-inline" id = "roomName" placeholder = "add room name here"
           value = {room} onChange = {e => setRoom(e.target.value)
         }
         />

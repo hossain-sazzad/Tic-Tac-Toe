@@ -1,7 +1,7 @@
 import React from 'react';
 
 const beforeStyle ={
-    background: 'white',
+    background: 'red',
     width: '90%',
     height: '90%',
     position: 'absolute',

@@ -1,14 +1,14 @@
 import React from 'react';
 
 const beforeStyle ={
-    background: 'white',
+    background: 'green',
     width: '93%',
     height: '13%',
     position: 'absolute',
     transform: 'rotate(45deg)'
 }
 const afterStyle ={
-    background: 'white',
+    background: 'green',
     width: '93%',
     height: '13%',
     position: 'absolute',

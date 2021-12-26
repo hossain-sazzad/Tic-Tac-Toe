@@ -6,9 +6,20 @@
   justify-content: center;
 }
 
+h1 {
+  color: greenyellow;
+}
+.form-control-inline {
+  max-width: 30;
+  width: auto;
+}
+
+.centre {
+  justify-content: center;
+}
+
 .board{
   display: grid;
-  width: max-content;
   min-height: min-content;
   grid-template-columns: repeat(3, auto);
   justify-content: center;
@@ -257,6 +268,7 @@ input:active, input:focus{
 .status-message{
   text-transform: uppercase;
   padding: 30px 0px;
+  color: greenyellow;
 }
 
 .score-board{
@@ -264,7 +276,7 @@ input:active, input:focus{
   grid-template-columns: repeat(2, 1fr);
   margin-top: 40px;
   justify-items:center;
-  color: white;
+  color: greenyellow;
   grid-gap: 5px 0;
 }
 
