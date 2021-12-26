@@ -4,11 +4,17 @@ import { useHistory } from "react-router-dom";
 
 function App() {    
     const [room, setRoom] = useState('')
+    const [link, setLink] = useState(null)
+
     let history = useHistory()
     const enterGame = () =>{
       console.log(room)
       var url = "/"+room
       history.push(url)
+    }
+
+    const generateLink = () =>{
+      setLink("http://localhost:3000/"+room)
     }
     return (
       <div className = "MyApp">
@@ -21,7 +27,16 @@ function App() {
         }
         />
         <button className = "btn btn-success mt-3"
-        onClick = {enterGame}>Join</button>            
+        onClick = {enterGame}>Join</button>         
+        <button className = "btn btn-success mt-3"
+        onClick = {generateLink}>Generate Link</button>    
+        {
+          link === null? null : (
+            <div >
+              <a href={link} class="link-primary">{link}</a>
+            </div>
+          )
+        }   
       </div>
     );
   }

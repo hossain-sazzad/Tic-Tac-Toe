@@ -3,6 +3,7 @@
   color: white;
   padding: 20px;
   min-height: 122vh;
+  justify-content: center;
 }
 
 .board{
@@ -10,6 +11,7 @@
   width: max-content;
   min-height: min-content;
   grid-template-columns: repeat(3, auto);
+  justify-content: center;
 }
 
 .square{

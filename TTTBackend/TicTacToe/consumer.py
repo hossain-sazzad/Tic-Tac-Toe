@@ -6,7 +6,7 @@ from channels.generic.websocket import WebsocketConsumer
 
 
 class GameRoom(WebsocketConsumer):
-    present = set()
+    present = dict()
     def connect(self):
         self.turn = 0
         self.room_name = self.scope['url_route']['kwargs']['room_code']
@@ -14,11 +14,18 @@ class GameRoom(WebsocketConsumer):
         print("room-name "+self.room_group_name)
         print(self.present)
         if(self.room_group_name in self.present):
-            playerNo = 2
-            print("player 2 selected")
+            # print("size "+ len(self.present[self.room_group_name]))
+            if len(self.present[self.room_group_name]) >= 2:
+                playerNo = 0
+                print("More than 2 player is not allowed")
+            else:
+                playerNo = 2
+                print("player 2 selected")
+                self.present[self.room_group_name].append(0)
         else:
             playerNo = 1
-            self.present.add(self.room_group_name)
+            self.present[self.room_group_name] = [0]
+            # self.present.add(self.room_group_name)
             print("player 1 selected")
 
         async_to_sync(self.channel_layer.group_add)(
@@ -81,11 +88,25 @@ class GameRoom(WebsocketConsumer):
 
     def receive(self, text_data):
         data = json.loads(text_data)
+        print(data)
+        if "event" in data :
+            print("restart triggered")
+            async_to_sync(self.channel_layer.group_send)(
+                self.room_group_name,{
+                    "type": "restart",
+                    'event': "reload"
+                }
+            )
+            return
+        
         board = data['board']
-        print("board "+ str(type(board)))
         board = self.updateGame(board, data['index'], data['playerNo'])
         win = self.checkWin(board)
         end = True if win else self.isGameOver(board)
+        
+        if(win):
+            self.present[self.room_group_name][data['playerNo']-1] = self.present[self.room_group_name][data['playerNo']-1] + 10
+        
         async_to_sync(self.channel_layer.group_send)(
             self.room_group_name,{
                 'type': 'updateState',
@@ -93,10 +114,16 @@ class GameRoom(WebsocketConsumer):
                 'playerNo': data['playerNo'],
                 'board': board,
                 'win': win,
-                'end': end
+                'end': end,
+                'score1': self.present[self.room_group_name][0],
+                'score2': self.present[self.room_group_name][1]
             }
         )
 
+    def restart(self, data):
+        self.send(text_data= json.dumps({
+            'payload': data
+        }))
     def updateState(self, data):
         # data = event['payload']
         # print("at updateState")
