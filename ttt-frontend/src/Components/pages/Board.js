@@ -143,12 +143,13 @@ class Board extends Component {
   handleClick = (index) => {
     if(this.state.turn){
       const {game, end} = this.state
+      console.log(index + " index is clicked")
       if (!game[index] && !end){
         client.send(JSON.stringify({"index": index, 
         "playerNo": this.state.piece==='X'? 1: 2,
         "board": game}))
+        this.setState({"turn": false})
       }
-      this.setState({"turn": false})
     }
   }
 
