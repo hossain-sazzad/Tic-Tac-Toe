@@ -5,7 +5,6 @@
 import React, { Component } from 'react';
 import { Redirect } from 'react-router-dom';
 import { w3cwebsocket } from 'websocket';
-import PlayAgain from '../functional/PlayAgain';
 import ScoreBoard from '../functional/ScoreBoard';
 import Square from '../functional/Square';
 import Status from '../functional/Status';
@@ -247,7 +246,12 @@ class Board extends Component {
             {squareArray}
             </div>
              <ScoreBoard data={{you:['You', this.state.currentPlayerScore], opponent:['Opponent', this.state.opponentPlayerScore]}}/>
-             <PlayAgain end={this.state.end} onClick={this.playAgainRequest}/>
+             {this.state.end ? (
+               <div class="row justify-content-center">
+                 <button className = "btn btn-success" onClick = {this.playAgainRequest}>Play Again</button>
+               </div>
+             ): null}
+             {/* <PlayAgain end={this.state.end} onClick={this.playAgainRequest}/> */}
             </div>
 
           )
