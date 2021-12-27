@@ -119,7 +119,7 @@ class Board extends Component {
    }    
   }
 
-  //Setting the states to start a game when new user join
+  // restart the game
   gameReStart(){
     var playerNo =  this.state.piece === 'X'?1 :2;
     if(playerNo === 1){
@@ -182,39 +182,6 @@ class Board extends Component {
     this.setState({end:true})
   }
 
-  //Setting the states when there is a draw at the end
-  handleDraw(gameState){
-    this.setBoard(gameState)
-    this.setState({end:true, statusMessage:'Draw'})
-  }
-
-  //Handle the restart event from the back end
-  handleRestart(gameState, turn){
-    this.setBoard(gameState)
-    this.setTurn(turn)
-    this.setMessage()
-    this.setState({end: false})
-  }
-
-  //Some utilities methods to set the states of the board
-
-  setMessage(){
-    const message = this.state.turn?'Your Turn':`${this.state.opponentPlayer[0]}'s Turn`
-    this.setState({statusMessage:message})
-  }
-
-  setTurn(turn){
-    if (this.state.piece === turn){
-      this.setState({turn:true})
-    }else{
-      this.setState({turn:false})
-    }
-  } 
-
-  setBoard(gameState){
-    this.setState({game:gameState})
-  }
-  
   renderSquare(i){
     return(
       <Square key={i} value={this.state.game[i]} 
