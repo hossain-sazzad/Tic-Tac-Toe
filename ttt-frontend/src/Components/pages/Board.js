@@ -31,7 +31,7 @@ class Board extends Component {
       currentPlayerScore: 0,
       opponentPlayerScore: 0,
       //State to check when a new user join
-      waiting: false,
+      waiting: true,
       joinError: false
     }
     this.socketID = null
@@ -72,13 +72,17 @@ class Board extends Component {
               _self.setState({"piece": "X"})
               console.log(_self.state.piece)
               _self.setState({"turn": true})
-              _self.setState({"statusMessage": "Your turn"})
+              _self.setState({"statusMessage": "Please Wait For Your Opponent"})
             } else {
               _self.setState({"piece": "O"})
               _self.setState({"turn": false})
               console.log(_self.state.piece)
               _self.setState({"statusMessage": "Opponent's turn"})
+              _self.setState({"waiting": false})
             }
+        } else {
+          _self.setState({"statusMessage": "Your turn"})
+          _self.setState({"waiting": false})
         }
       } else if (type === 'discard'){
         _self.setState({"statusMessage": "opponent player left", "end": true, "piece": ''})
@@ -237,7 +241,7 @@ class Board extends Component {
         <>
         <div>
         <Status message={this.state.statusMessage}/>
-         {this.state.piece === ''? null : (
+         {this.state.piece === '' || this.state.waiting ? null : (
             <div>
             <div className="board">
             {squareArray}
