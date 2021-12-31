@@ -1,0 +1,40 @@
+version: "3.2"
+services:
+  redis:
+    restart: always
+    image: redis:5
+    network_mode: host
+
+
+
+
+  TTTBackend:
+    image: backend
+    container_name: server
+    restart: always
+    container_name: code
+    command : bash -c "python manage.py migrate &&
+                      python manage.py runserver"
+    build:
+      context: ./TTTBackend/
+      dockerfile: Dockerfile
+    network_mode: host
+    depends_on:
+      - redis
+
+  ttt-frontend:
+    restart: always
+    command : npm start
+    container_name: front
+    build:
+      context: ./ttt-frontend/
+      dockerfile: Dockerfile
+    stdin_open: true
+    depends_on:
+      - TTTBackend
+    network_mode: host
+    
+
+networks:
+  db-net:
+    driver: bridge
