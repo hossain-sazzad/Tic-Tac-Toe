@@ -1,19 +1,10 @@
 # Tic-Tac-Toe
 
-**How to start the server**
+**How to run the application**
 
-1) Start redis server in port 6379
-2) Install python
-3) Create a virtual environment
-4) Activate the environment
-5) run "run-server.sh"
-
-
-**How to start the client system**
-
-1) Go to the directory ttt-frontend
-2) run "npm install"
-3) run "npm start"
+1) install docker-compose
+2) Run the command ` docker-compose build`
+3) run the command `docker-compose up-d`
 
 
 **How to play the game**
