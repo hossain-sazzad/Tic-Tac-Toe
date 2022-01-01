@@ -215,7 +215,7 @@ class Board extends Component {
             </div>
              <ScoreBoard data={{you:['You', this.state.currentPlayerScore], opponent:['Opponent', this.state.opponentPlayerScore]}}/>
              {this.state.end ? (
-               <div class="row justify-content-center">
+               <div className="row justify-content-center">
                  <button className = "btn btn-success" onClick = {this.playAgainRequest}>Play Again</button>
                </div>
              ): null}

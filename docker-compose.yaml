@@ -3,13 +3,14 @@ services:
   redis:
     restart: always
     image: redis:5
-    network_mode: host
+    ports: 
+     - 6369:6379
 
 
 
 
   TTTBackend:
-    image: backend
+    image: dockersazzad/tic-tac-toe/backend
     container_name: server
     restart: always
     container_name: code
@@ -23,6 +24,7 @@ services:
       - redis
 
   ttt-frontend:
+    image: dockersazzad/tic-tac-toe/frontend
     restart: always
     command : npm start
     container_name: front
@@ -34,7 +36,3 @@ services:
       - TTTBackend
     network_mode: host
     
-
-networks:
-  db-net:
-    driver: bridge
